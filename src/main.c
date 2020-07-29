@@ -26,6 +26,7 @@ struct ball {
     float y;
     float width;
     float height;
+    float vel;
 } ball;
 
 
@@ -68,11 +69,16 @@ void process_input(void){
 
     case SDL_KEYDOWN:{
         if (event.key.keysym.sym == SDLK_UP){
-            player.y -= 10;
+            if (player.y!=0) {
+                player.y -= 10;
+            }
+            
         }
         else if (event.key.keysym.sym == SDLK_DOWN)
         {
-            player.y += 10;
+            if ((player.y + player.height) != WINDOW_HEIGHT){
+                player.y += 10;
+            }
         }
         else if (event.key.keysym.sym == SDLK_ESCAPE){
             is_running = FALSE;
@@ -102,6 +108,14 @@ void setup(void){
     ball.y = 400;
     ball.width = 10;
     ball.height = 10;
+    ball.vel = -40;
+}
+
+void check_collision(){
+    //Basic mirror collision
+    if ((player.x + player.width) >= ball.x){
+        ball.vel *= -1;
+    }
 }
 
 void update(void){
@@ -109,7 +123,8 @@ void update(void){
     float delta_time = (SDL_GetTicks() - last_frame_time)/1000.0f;
     last_frame_time = SDL_GetTicks();
 
-    ball.x += 20 * delta_time;
+    ball.x += ball.vel * delta_time;
+    check_collision();
 
 }
 
@@ -146,6 +161,7 @@ void render(void){
     SDL_RenderPresent(renderer);
 
 }
+
 
 void destroy_window(void){
     SDL_DestroyRenderer(renderer);
